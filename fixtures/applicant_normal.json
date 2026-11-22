@@ -1,0 +1,18 @@
+[
+  {
+    "subsystem": "applicant",
+    "event": {
+      "id": "a1",
+      "subject": "couple-1",
+      "action": "applicant",
+      "data": {
+        "partner": "couple-2",
+        "valid_until": 20,
+        "region": "cross",
+        "version": 1
+      },
+      "effective_at": 1,
+      "received_at": 1
+    }
+  }
+]
