@@ -1,0 +1,46 @@
+[
+  {
+    "subsystem": "applicant",
+    "event": {
+      "id": "a1",
+      "subject": "couple-1",
+      "action": "applicant",
+      "data": {
+        "partner": "couple-2",
+        "valid_until": 20,
+        "region": "cross",
+        "version": 1
+      },
+      "effective_at": 1,
+      "received_at": 1
+    }
+  },
+  {
+    "subsystem": "slot",
+    "event": {
+      "id": "b1",
+      "subject": "couple-1",
+      "action": "book",
+      "data": {
+        "slot": "win-1",
+        "capacity": 1
+      },
+      "effective_at": 2,
+      "received_at": 2
+    }
+  },
+  {
+    "subsystem": "visit",
+    "event": {
+      "id": "v1",
+      "subject": "couple-1",
+      "action": "checkin",
+      "data": {
+        "reservation": "b1",
+        "deadline": 10
+      },
+      "effective_at": 3,
+      "received_at": 3
+    }
+  }
+]

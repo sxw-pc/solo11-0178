@@ -1,0 +1,115 @@
+[
+  {
+    "subsystem": "applicant",
+    "event": {
+      "id": "a1",
+      "subject": "couple-1",
+      "action": "applicant",
+      "data": {
+        "partner": "couple-2",
+        "valid_until": 20,
+        "region": "cross",
+        "version": 1
+      },
+      "effective_at": 1,
+      "received_at": 1
+    }
+  },
+  {
+    "subsystem": "slot",
+    "event": {
+      "id": "b1",
+      "subject": "couple-1",
+      "action": "book",
+      "data": {
+        "slot": "win-1",
+        "capacity": 1
+      },
+      "effective_at": 2,
+      "received_at": 2
+    }
+  },
+  {
+    "subsystem": "visit",
+    "event": {
+      "id": "v1",
+      "subject": "couple-1",
+      "action": "checkin",
+      "data": {
+        "reservation": "b1",
+        "deadline": 10
+      },
+      "effective_at": 3,
+      "received_at": 3
+    }
+  },
+  {
+    "subsystem": "visit",
+    "event": {
+      "id": "v2",
+      "subject": "couple-1",
+      "action": "complete",
+      "data": {
+        "checkin": "v1"
+      },
+      "effective_at": 4,
+      "received_at": 4
+    }
+  },
+  {
+    "subsystem": "applicant",
+    "event": {
+      "id": "a2",
+      "subject": "couple-3",
+      "action": "applicant",
+      "data": {
+        "partner": "couple-4",
+        "valid_until": 20,
+        "region": "local"
+      },
+      "effective_at": 1,
+      "received_at": 1
+    }
+  },
+  {
+    "subsystem": "slot",
+    "event": {
+      "id": "b2",
+      "subject": "couple-3",
+      "action": "book",
+      "data": {
+        "slot": "win-1",
+        "capacity": 1
+      },
+      "effective_at": 2,
+      "received_at": 2
+    }
+  },
+  {
+    "subsystem": "slot",
+    "event": {
+      "id": "o1",
+      "subject": "win-1",
+      "action": "outage",
+      "data": {
+        "slot": "win-1"
+      },
+      "effective_at": 5,
+      "received_at": 5
+    }
+  },
+  {
+    "subsystem": "visit",
+    "event": {
+      "id": "v3",
+      "subject": "couple-1",
+      "action": "checkin",
+      "data": {
+        "reservation": "b1",
+        "deadline": 10
+      },
+      "effective_at": 6,
+      "received_at": 6
+    }
+  }
+]
