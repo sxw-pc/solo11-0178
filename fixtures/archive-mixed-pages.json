@@ -1,0 +1,99 @@
+{
+  "case_id": "CASE-X",
+  "required": [
+    "application",
+    "receipt"
+  ],
+  "documents": [
+    "application",
+    "receipt"
+  ],
+  "batches": [
+    {
+      "id": "B-v1",
+      "material": "application",
+      "version": 1,
+      "page_count": 3,
+      "uploaded_at": 10
+    },
+    {
+      "id": "B-v2",
+      "material": "application",
+      "version": 2,
+      "page_count": 3,
+      "uploaded_at": 20
+    }
+  ],
+  "scans": [
+    {
+      "batch": "B-v1",
+      "material": "application",
+      "version": 1,
+      "page": 1,
+      "page_count": 3,
+      "sha256": "0aebf3e189edb7c7c4322a218fc39e1124be6baa55f8e355f31fddebdb677de6",
+      "signed_at": 11,
+      "received_at": 11
+    },
+    {
+      "batch": "B-v1",
+      "material": "application",
+      "version": 1,
+      "page": 3,
+      "page_count": 3,
+      "sha256": "0c18575874ff447112175adf3b247576689fc12eb6e8751f814d1b54ba7c81fa",
+      "signed_at": 13,
+      "received_at": 13
+    },
+    {
+      "batch": "B-v2",
+      "material": "application",
+      "version": 2,
+      "page": 1,
+      "page_count": 3,
+      "sha256": "2176b347fec58967a29256967b8ebc86db0117010dd440c7ecb4f135208001c0",
+      "signed_at": 21,
+      "received_at": 21
+    },
+    {
+      "batch": "B-v2",
+      "material": "application",
+      "version": 1,
+      "page": 2,
+      "page_count": 3,
+      "sha256": "6e22e4d93a520d2fd09221554413c561492bd69f7f1761de748b569064991d44",
+      "signed_at": 22,
+      "received_at": 22
+    },
+    {
+      "batch": "B-v2",
+      "material": "application",
+      "version": 2,
+      "page": 3,
+      "page_count": 3,
+      "sha256": "d91b5015e5307fb25d629f365dd2ee42d14d76b1b7908fc23e586e4f21c6e3d3",
+      "signed_at": 23,
+      "received_at": 23
+    }
+  ],
+  "receipts": [
+    {
+      "id": "R1",
+      "role": "receipt",
+      "material": "application",
+      "version": 1,
+      "signed_at": 15
+    }
+  ],
+  "identities": [
+    {
+      "id": "ID-v1",
+      "receipt": "R1",
+      "material": "application",
+      "version": 1,
+      "batch": "B-v1"
+    }
+  ],
+  "corrections": [],
+  "revocations": []
+}
