@@ -1,0 +1,13 @@
+{
+  "month": "2026-10",
+  "batches": [
+    {"id": "daily-L-r1", "window": "L", "revision": 1, "arrived_at": 20261102, "rows": [{"office": "L", "group": "A", "requested": 10, "confirmed": 8}]},
+    {"id": "daily-C-r1", "window": "C", "revision": 1, "arrived_at": 20261102, "rows": [{"office": "C", "group": "A", "requested": 10, "confirmed": 6}]}
+  ],
+  "correction": {"id": "daily-C-r2", "window": "C", "revision": 2, "arrived_at": 20261105, "rows": [{"office": "C", "group": "A", "requested": 10, "confirmed": 4}]},
+  "revoke": {"id": "daily-C-r2", "revoked_at": 20261106, "reason": "source-retracted"},
+  "expect": {
+    "v1": {"confirmed": 14, "requested": 20, "rate": 0.7},
+    "v2": {"confirmed": 12, "requested": 20, "rate": 0.6}
+  }
+}
