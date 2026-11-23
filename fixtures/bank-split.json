@@ -1,0 +1,62 @@
+{
+  "record_id": "BANK-SPLIT-1",
+  "note": "合成测试素材：登记处代收证书邮寄服务款，金额虚构，不代表任何地区法定登记收费。",
+  "case_dues": [["X", 1000], ["Y", 500]],
+  "captures": [
+    {
+      "kind": "reversal_notice",
+      "capture_id": "CAP-R1",
+      "transaction_id": "R1",
+      "original_transaction_id": "B1",
+      "payer": "PAYER-1",
+      "case_id": "Y",
+      "cents": 400,
+      "source_page": "R1-page-001",
+      "posted_at": "2026-09-03T09:00:00Z",
+      "received_at": "2026-09-04T08:00:00Z"
+    },
+    {
+      "kind": "bank_receipt",
+      "capture_id": "CAP-B1-A",
+      "transaction_id": "B1",
+      "payer": "PAYER-1",
+      "gross_cents": 1500,
+      "source_page": "B1-page-001",
+      "file_name": "b1_advice_scan.tiff",
+      "posted_at": "2026-09-01T09:00:00Z",
+      "received_at": "2026-09-04T09:00:00Z"
+    },
+    {
+      "kind": "bank_receipt",
+      "capture_id": "CAP-B1-B",
+      "transaction_id": "B1",
+      "payer": "PAYER-1",
+      "gross_cents": 1500,
+      "source_page": "B1-page-001",
+      "file_name": "b1_advice_renamed_copy.tiff",
+      "posted_at": "2026-09-01T09:00:00Z",
+      "received_at": "2026-09-04T09:05:00Z"
+    },
+    {
+      "kind": "counter_receipt",
+      "capture_id": "CAP-C1",
+      "transaction_id": "B1",
+      "payer": "PAYER-1",
+      "gross_cents": 1500,
+      "source_page": "C1-page-007",
+      "posted_at": "2026-09-01T10:30:00Z",
+      "received_at": "2026-09-04T10:00:00Z"
+    },
+    {
+      "kind": "remittance_memo",
+      "capture_id": "MEMO-B1-1",
+      "transaction_id": "B1",
+      "payer": "PAYER-1",
+      "gross_cents": 1500,
+      "splits": [{"case_id": "X", "cents": 1000}, {"case_id": "Y", "cents": 500}],
+      "source_page": "MEMO-page-012",
+      "posted_at": "2026-09-01T09:10:00Z",
+      "received_at": "2026-09-04T11:00:00Z"
+    }
+  ]
+}
