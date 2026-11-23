@@ -14,6 +14,8 @@
 
 `python -m unittest discover -s tests -v`
 
+`python -B -m pytest -q -p no:cacheprovider`
+
 ## 三个独立入口
 
 ### 资格与材料核验
@@ -33,6 +35,10 @@
 `python -m marrydesk visit --db visit.db --fixture fixtures/visit_normal.json`
 
 失败证据：`fixtures/visit_failure.json`。到场身份和材料核验后是否办结或退件。持久化对象包括 签到凭证、办理回执，领域模块位于 `marrydesk/visit.py`。
+
+### 实体盒保管与整案调阅
+
+`fixtures/box-cross-room.json` 采录库房 RFID 扫描、人工移交单、扫描室出入台账、借阅申请与返还点收单（盒标、卷号、库房、经手人、发生/上传时刻、移交双方、撤销凭据）。`marrydesk/box_capture.py` 负责盒标 OCR 归一去重、按发生时刻排序、撤销凭据留存与 SQLite 入库；`marrydesk/box.py` 把双边点收与在途状态整理成可核验位置，RFID 边界误读只留证不改占有；`marrydesk/loan.py` 对多卷整案请求给出可交付实体盒、待召回盒与实际借出责任人。迟到上传按真实发生时刻补入，只修订对应交接，不改写旧借阅凭据。
 
 ## 持久化与恢复
 
@@ -55,6 +61,10 @@
 - **到场签到裁定**：时限与身份对应后才允许启动办理，改变最终业务可执行状态。
 
 - **办理回执闭环**：材料撤回或重试时不重复办结，改变最终业务可执行状态。
+
+- **双边点收与在途责任**：实体盒只有移交单与点收单双边齐备才转移占有，在途期间无责任方，不能同时宣称“原库可借”和“扫描室已占有”。
+
+- **整案全卷门槛**：整案请求必须同时覆盖所需全部卷；先到的局部盒可预约但不能伪造整案交付，迟到扫描与 RFID 误读均不能错误发放。
 
 ## 跨系统案例
 

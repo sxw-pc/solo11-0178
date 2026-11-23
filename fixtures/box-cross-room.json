@@ -1,0 +1,38 @@
+{
+  "case_id": "X",
+  "required_volumes": ["V1", "V2"],
+  "rooms": {
+    "S-4": {"name": "库房S-4", "kind": "vault"},
+    "R": {"name": "扫描室R", "kind": "scan"}
+  },
+  "boxes": {
+    "BOX-1": {"box_id": "BOX-1", "label": "盒标AX-001", "volumes": ["V1"], "home_shelf": "S-4"},
+    "BOX-2": {"box_id": "BOX-2", "label": "盒标AX-002", "volumes": ["V2"], "home_shelf": "S-4"}
+  },
+  "events": [
+    {"id": "reg-1", "kind": "register", "box_id": "BOX-1", "ocr_text": " 盒标 AX-001 ", "volumes": ["V1"], "home_shelf": "S-4", "location": "S-4", "party": "库房S-4", "actor": "王库管", "occurred_at": "2026-11-23T08:00:00Z", "uploaded_at": "2026-11-23T08:00:00Z"},
+    {"id": "reg-2", "kind": "register", "box_id": "BOX-2", "ocr_text": " 盒标 AX-002 ", "volumes": ["V2"], "home_shelf": "S-4", "location": "S-4", "party": "库房S-4", "actor": "王库管", "occurred_at": "2026-11-23T08:00:00Z", "uploaded_at": "2026-11-23T08:00:00Z"},
+    {"id": "rfid-0810-1", "kind": "rfid_read", "label": "盒标AX-001", "reader": "S-4-gate", "location": "S-4", "actor": "RFID-S4", "occurred_at": "2026-11-23T08:10:00Z", "uploaded_at": "2026-11-23T08:10:00Z"},
+    {"id": "rfid-0810-2", "kind": "rfid_read", "label": "盒标AX-002", "reader": "S-4-gate", "location": "S-4", "actor": "RFID-S4", "occurred_at": "2026-11-23T08:10:00Z", "uploaded_at": "2026-11-23T08:10:00Z"},
+    {"id": "dispatch-0900", "kind": "handover_dispatch", "box_id": "BOX-2", "slip_id": "H-2026-001", "from_location": "S-4", "to_location": "R", "from_party": "库房S-4", "to_party": "扫描室R", "dispatcher": "王库管", "receiver_named": "李扫描", "actor": "王库管", "occurred_at": "2026-11-23T09:00:00Z", "uploaded_at": "2026-11-23T09:01:00Z"},
+    {"id": "rfid-ghost-0910", "kind": "rfid_read", "label": "盒标AX-002", "reader": "S-4-gate", "location": "S-4", "actor": "RFID-S4", "occurred_at": "2026-11-23T09:10:00Z", "uploaded_at": "2026-11-23T09:11:00Z"},
+    {"id": "cancel-0915", "kind": "event_cancel", "target_id": "rfid-ghost-0910", "reason": "读头维护期误报，库房人工核对盒不在架", "credential": "撤销凭据C-9", "actor": "王库管", "occurred_at": "2026-11-23T09:15:00Z", "uploaded_at": "2026-11-23T09:16:00Z"},
+    {"id": "receipt-0905", "kind": "handover_receipt", "box_id": "BOX-2", "slip_id": "H-2026-001", "location": "R", "receiver": "李扫描", "actor": "李扫描", "occurred_at": "2026-11-23T09:05:00Z", "uploaded_at": "2026-11-23T11:00:00Z"},
+    {"id": "rfid-0930", "kind": "rfid_read", "label": "盒标AX-002", "reader": "S-4-gate", "location": "S-4", "actor": "RFID-S4", "occurred_at": "2026-11-23T09:30:00Z", "uploaded_at": "2026-11-23T09:31:00Z"},
+    {"id": "rfid-0930-dup", "kind": "rfid_read", "label": "盒标AX-002", "reader": "S-4-gate", "location": "S-4", "actor": "RFID-S4", "occurred_at": "2026-11-23T09:30:00Z", "uploaded_at": "2026-11-23T09:31:00Z"},
+    {"id": "request-1000", "kind": "loan_request", "case_id": "X", "requester": "赵借阅", "volumes": ["V1", "V2"], "actor": "赵借阅", "occurred_at": "2026-11-23T10:00:00Z", "uploaded_at": "2026-11-23T10:00:00Z"}
+  ],
+  "routes": {
+    "physical_return": [
+      {"id": "r-dispatch-1025", "kind": "handover_dispatch", "box_id": "BOX-2", "slip_id": "RH-2026-002", "from_location": "R", "to_location": "S-4", "from_party": "扫描室R", "to_party": "库房S-4", "dispatcher": "李扫描", "receiver_named": "王库管", "actor": "李扫描", "occurred_at": "2026-11-23T10:25:00Z", "uploaded_at": "2026-11-23T10:26:00Z"},
+      {"id": "r-receipt-1030", "kind": "handover_receipt", "box_id": "BOX-2", "slip_id": "RH-2026-002", "location": "S-4", "receiver": "王库管", "actor": "王库管", "occurred_at": "2026-11-23T10:30:00Z", "uploaded_at": "2026-11-23T10:32:00Z"},
+      {"id": "issue-1040", "kind": "loan_issue", "loan_id": "L-2026-07", "case_id": "X", "box_ids": ["BOX-1", "BOX-2"], "borrower": "赵借阅", "due_at": "2026-12-07T10:40:00Z", "actor": "王库管", "occurred_at": "2026-11-23T10:40:00Z", "uploaded_at": "2026-11-23T10:40:00Z"},
+      {"id": "loan-return-1205", "kind": "return_receipt", "loan_id": "L-2026-07", "box_ids": ["BOX-1", "BOX-2"], "location": "S-4", "checker": "王库管", "actor": "王库管", "occurred_at": "2026-12-05T09:00:00Z", "uploaded_at": "2026-12-05T09:05:00Z"}
+    ],
+    "digital_substitute": [
+      {"id": "digital-1020", "kind": "digital_delivery", "case_id": "X", "box_id": "BOX-2", "volumes": ["V2"], "confirmed_by": {"scan_room": "李扫描", "requester": "赵借阅"}, "actor": "李扫描", "occurred_at": "2026-11-23T10:20:00Z", "uploaded_at": "2026-11-23T10:21:00Z"},
+      {"id": "issue-1025", "kind": "loan_issue", "loan_id": "L-2026-08", "case_id": "X", "box_ids": ["BOX-1"], "borrower": "赵借阅", "due_at": "2026-12-07T10:25:00Z", "actor": "王库管", "occurred_at": "2026-11-23T10:25:00Z", "uploaded_at": "2026-11-23T10:25:00Z"},
+      {"id": "loan-return-1205-b1", "kind": "return_receipt", "loan_id": "L-2026-08", "box_ids": ["BOX-1"], "location": "S-4", "checker": "王库管", "actor": "王库管", "occurred_at": "2026-12-05T09:00:00Z", "uploaded_at": "2026-12-05T09:05:00Z"}
+    ]
+  }
+}
