@@ -1,0 +1,81 @@
+{
+  "scenario": "cert-crash",
+  "description": "案卷 X 的 C100 打印作业 J7：打印机确已吐出 C100 并由受控盘扫码，但驱动的成功应答在写登记前丢失，SQLite 只保留 J7 已发送。重启后 J7 被重发、扫码包 S1 被重传。同一中间状态允许两路真实恢复：领回 C100 补登记签发 X=C100（recover_reclaim），或两人见证作废 C100 后以新作业 J8 打印 C101 签发 X=C101（recover_void）。另注入两个切点：案卷 Y 登记已写 issued 而本地任务队列尚未确认（crash_b，恢复不得再发物理打印）；案卷 Z 先占号后打印并在出纸前断电（register_first）。",
+  "phases": {
+    "stock": [
+      {"op": "intake", "serials": ["C100", "C101", "C200", "C300"], "at": 1, "raw": "STOCK|IN|C100,C101,C200,C300|W1", "expect": "intaken"}
+    ],
+    "crash_a_setup": [
+      {"op": "assign", "job": "J7", "case": "X", "serial": "C100", "boot": 1, "at": 10, "raw": "STOCK|ASSIGN|J7|C100|X", "expect": "assigned"},
+      {"op": "enqueue", "job": "J7", "case": "X", "serial": "C100", "at": 11, "expect": "enqueued"},
+      {"op": "dispatch", "job": "J7", "boot": 1, "at": 12, "raw": "PRN|PRINT|J7|C100|X|boot=1", "expect": "sent"},
+      {"op": "assert_sheet", "serial": "C100", "expect": "assigned"},
+      {"op": "assert_registry", "case": "X", "expect": null}
+    ],
+    "crash_a_restart": [
+      {"op": "crash", "boot": 2, "note": "驱动成功应答在写登记前丢失：SQLite 只保留 J7 已发送，没有 issued 行"},
+      {"op": "dispatch", "job": "J7", "boot": 2, "at": 15, "raw": "PRN|PRINT|J7|C100|X|boot=2", "expect": "duplicate-dispatch-suppressed", "expect_reason": "unverified-retry"},
+      {"op": "scan", "scan": "S1", "job": "J7", "serial": "C100", "boot": 1, "at": 13, "rx": 16, "raw": "TRAY|SCAN|S1|C100|J7", "expect": "trayed"},
+      {"op": "scan", "scan": "S1", "job": "J7", "serial": "C100", "boot": 1, "at": 13, "rx": 17, "raw": "TRAY|SCAN|S1|C100|J7", "expect": "duplicate-scan"},
+      {"op": "assert_sheet", "serial": "C100", "expect": "printed"},
+      {"op": "reconcile", "case": "X", "expect_state": "printed-unregistered", "expect_actions": ["reclaim-and-register", "void-and-reprint"]}
+    ],
+    "recover_reclaim": [
+      {"op": "reclaim", "job": "J7", "clerk": "clerk-A", "at": 20, "raw": "TRAY|RECLAIM|J7|C100|clerk-A", "expect": "reclaimed"},
+      {"op": "reconcile", "case": "X", "expect_state": "reclaimed-unregistered", "expect_actions": ["register-reclaimed-sheet"]},
+      {"op": "issue", "case": "X", "serial": "C100", "job": "J7", "window": "W1", "at": 21, "raw": "REG|SUBMIT|X|C100|J7", "expect": "issued"},
+      {"op": "issue", "case": "X", "serial": "C100", "job": "J7", "window": "W1", "at": 22, "raw": "REG|SUBMIT|X|C100|J7", "expect": "idempotent"},
+      {"op": "confirm", "job": "J7", "at": 23, "raw": "REG|CONFIRM|X|C100|J7", "expect": "confirmed"},
+      {"op": "reconcile", "case": "X", "expect_state": "complete", "expect_actions": []},
+      {"op": "assert_registry", "case": "X", "expect": "C100"},
+      {"op": "assert_sheet", "serial": "C100", "expect": "reclaimed"},
+      {"op": "assert_sheet", "serial": "C101", "expect": "stock"},
+      {"op": "assert_prints", "job": "J7", "expect": 1}
+    ],
+    "recover_void": [
+      {"op": "void", "serial": "C100", "witnesses": ["witness-1", "witness-2"], "reason": "paper-contaminated", "at": 20, "raw": "STOCK|VOID|C100|witness-1+witness-2", "expect": "voided"},
+      {"op": "reconcile", "case": "X", "expect_state": "sheet-voided-awaiting-new-job", "expect_actions": ["assign-new-job"]},
+      {"op": "assign", "job": "J8", "case": "X", "serial": "C101", "boot": 2, "at": 22, "raw": "STOCK|ASSIGN|J8|C101|X", "expect": "assigned"},
+      {"op": "enqueue", "job": "J8", "case": "X", "serial": "C101", "at": 23, "expect": "enqueued"},
+      {"op": "dispatch", "job": "J8", "boot": 2, "at": 24, "raw": "PRN|PRINT|J8|C101|X|boot=2", "expect": "sent"},
+      {"op": "scan", "scan": "S2", "job": "J8", "serial": "C101", "boot": 2, "at": 25, "raw": "TRAY|SCAN|S2|C101|J8", "expect": "trayed"},
+      {"op": "issue", "case": "X", "serial": "C101", "job": "J8", "window": "W1", "at": 26, "raw": "REG|SUBMIT|X|C101|J8", "expect": "issued"},
+      {"op": "confirm", "job": "J8", "at": 27, "raw": "REG|CONFIRM|X|C101|J8", "expect": "confirmed"},
+      {"op": "reconcile", "case": "X", "expect_state": "complete", "expect_actions": []},
+      {"op": "assert_registry", "case": "X", "expect": "C101"},
+      {"op": "assert_sheet", "serial": "C100", "expect": "voided"},
+      {"op": "assert_prints", "job": "J7", "expect": 1},
+      {"op": "assert_prints", "job": "J8", "expect": 1}
+    ],
+    "crash_b_setup": [
+      {"op": "assign", "job": "J9", "case": "Y", "serial": "C200", "boot": 1, "at": 10, "raw": "STOCK|ASSIGN|J9|C200|Y", "expect": "assigned"},
+      {"op": "enqueue", "job": "J9", "case": "Y", "serial": "C200", "at": 11, "expect": "enqueued"},
+      {"op": "dispatch", "job": "J9", "boot": 1, "at": 12, "raw": "PRN|PRINT|J9|C200|Y|boot=1", "expect": "sent"},
+      {"op": "scan", "scan": "S3", "job": "J9", "serial": "C200", "boot": 1, "at": 13, "raw": "TRAY|SCAN|S3|C200|J9", "expect": "trayed"},
+      {"op": "issue", "case": "Y", "serial": "C200", "job": "J9", "window": "W1", "at": 14, "raw": "REG|SUBMIT|Y|C200|J9", "expect": "issued"}
+    ],
+    "crash_b_restart": [
+      {"op": "crash", "boot": 2, "note": "登记已写 issued，但本地任务队列尚未确认"},
+      {"op": "dispatch", "job": "J9", "boot": 2, "at": 15, "raw": "PRN|PRINT|J9|C200|Y|boot=2", "expect": "duplicate-dispatch-suppressed", "expect_reason": "paper-already-out"},
+      {"op": "reconcile", "case": "Y", "expect_state": "registered-unconfirmed", "expect_actions": ["confirm-queue"]},
+      {"op": "confirm", "job": "J9", "at": 16, "raw": "REG|CONFIRM|Y|C200|J9", "expect": "confirmed"},
+      {"op": "reconcile", "case": "Y", "expect_state": "complete", "expect_actions": []},
+      {"op": "assert_prints", "job": "J9", "expect": 1},
+      {"op": "assert_registry", "case": "Y", "expect": "C200"}
+    ],
+    "register_first": [
+      {"op": "assign", "job": "J10", "case": "Z", "serial": "C300", "boot": 1, "at": 10, "raw": "STOCK|ASSIGN|J10|C300|Z", "expect": "assigned"},
+      {"op": "enqueue", "job": "J10", "case": "Z", "serial": "C300", "at": 11, "expect": "enqueued"},
+      {"op": "issue", "case": "Z", "serial": "C300", "job": "J10", "window": "W1", "at": 12, "raw": "REG|SUBMIT|Z|C300|J10", "expect": "issued"},
+      {"op": "reconcile", "case": "Z", "expect_state": "registered-not-printed", "expect_actions": ["dispatch"]},
+      {"op": "crash", "boot": 2, "note": "登记先占号而纸张未出"},
+      {"op": "reconcile", "case": "Z", "expect_state": "registered-not-printed", "expect_actions": ["dispatch"]},
+      {"op": "dispatch", "job": "J10", "boot": 2, "at": 15, "raw": "PRN|PRINT|J10|C300|Z|boot=2", "expect": "sent"},
+      {"op": "scan", "scan": "S4", "job": "J10", "serial": "C300", "boot": 2, "at": 16, "raw": "TRAY|SCAN|S4|C300|J10", "expect": "trayed"},
+      {"op": "confirm", "job": "J10", "at": 17, "raw": "REG|CONFIRM|Z|C300|J10", "expect": "confirmed"},
+      {"op": "reconcile", "case": "Z", "expect_state": "complete", "expect_actions": []},
+      {"op": "assert_prints", "job": "J10", "expect": 1},
+      {"op": "assert_registry", "case": "Z", "expect": "C300"}
+    ]
+  }
+}
