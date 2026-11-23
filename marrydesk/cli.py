@@ -2,26 +2,40 @@
 import argparse, json
 from pathlib import Path
 from . import storage
+from . import audit_capture
 from . import applicant, slot, visit
 
 HANDLERS={'applicant':applicant.apply,'slot':slot.apply,'visit':visit.apply}
 
-def run_event(con, subsystem, event):
+def run_event(con, subsystem, event, batch_id=None, trusted='trusted', now=None):
     if subsystem not in HANDLERS: raise ValueError('unknown-subsystem')
     with con:
         if not storage.record(con,subsystem,event):
             prior=con.execute('SELECT outcome,reason,state FROM decisions WHERE event_id=? ORDER BY id DESC LIMIT 1',(event['id'],)).fetchone()
             return {'event':event['id'],'outcome':'idempotent','prior':dict(prior) if prior else None}
-        return HANDLERS[subsystem](con,event)
+        result=HANDLERS[subsystem](con,event)
+        # evidence: source ledger plus per-row projection provenance
+        seq=con.execute('SELECT COUNT(*) n FROM events').fetchone()['n']
+        row=con.execute('SELECT digest FROM events WHERE id=?',(event['id'],)).fetchone()
+        storage.note_event_source(con,event['id'],seq,
+                                  int(event.get('effective_at',0)),
+                                  int(event.get('received_at',0)),
+                                  subsystem,row['digest'],batch_id=batch_id,
+                                  trusted=trusted,anchored=batch_id is None,
+                                  detail={'captured_at':now} if now is not None else None)
+        storage.stamp_event_projections(con,event['id'])
+        return result
 
 def audit(con):
-    replay=storage.connect(':memory:')
-    for row in con.execute('SELECT subsystem,payload FROM events ORDER BY rowid'):
-        run_event(replay,row['subsystem'],json.loads(row['payload']))
-    actual=storage.report(con); expected=storage.report(replay)
-    mismatches=[key for key in ('events','decisions','subjects','allocations','receipts') if actual[key]!=expected[key]]
-    replay.close()
-    return {'ok':not mismatches,'mismatches':mismatches,'replayed_events':len(expected['events'])}
+    """Legacy-compatible audit, enriched with provenance-grade evidence.
+
+    The returned object keeps ``ok``, ``mismatches`` (table names) and
+    ``replayed_events`` so existing callers and tests are unchanged; the
+    ``classification`` / ``evidence`` / ``recovery_plans`` keys carry the
+    first provable fork, exact divergent rows, causal impact and immutable
+    conditional recovery plans.
+    """
+    return audit_capture.audit_evidence(con)
 
 def main(argv=None):
     p=argparse.ArgumentParser(); p.add_argument('command',choices=['init','demo','report','audit','applicant','slot','visit']); p.add_argument('--db',default='local.db'); p.add_argument('--fixture'); args=p.parse_args(argv)
