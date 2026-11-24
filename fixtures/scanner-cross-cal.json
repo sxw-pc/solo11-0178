@@ -1,0 +1,40 @@
+{
+  "case": "scanner-cross-cal",
+  "devices": [
+    {"device_id": "SCAN-A", "limit_mm": 2},
+    {"device_id": "SCAN-B", "limit_mm": 2},
+    {"device_id": "SCAN-C", "limit_mm": 2}
+  ],
+  "gauges": [
+    {"gauge_id": "GAUGE-R", "nominal_mm": 100},
+    {"gauge_id": "GAUGE-S", "nominal_mm": 100}
+  ],
+  "captures": [
+    {"kind": "certificate", "cert_id": "CERT-S-1", "gauge_id": "GAUGE-S", "offset_mm": 0, "uncertainty_mm": 0.2, "authority": "计量院", "effective_at": 5},
+    {"kind": "slip", "slip_id": "SLIP-AR-1", "raw_text": "SCAN-A - GAUGE-R = +2 mm", "uncertainty_mm": 0.5, "photo": {"page": 3, "bbox": [120, 40, 460, 88]}, "effective_at": 10},
+    {"kind": "slip", "slip_id": "SLIP-AR-1", "raw_text": "SCAN-A - GAUGE-R = +2 mm", "uncertainty_mm": 0.5, "photo": {"page": 3, "bbox": [120, 40, 460, 88]}, "effective_at": 10},
+    {"kind": "slip", "slip_id": "SLIP-BR-1", "raw_text": "SCAN-B - GAUGE-R = -2 mm", "uncertainty_mm": 0.5, "photo": {"page": 4, "bbox": [118, 42, 462, 90]}, "effective_at": 11},
+    {"kind": "slip", "slip_id": "SLIP-AB-1", "raw_text": "SCAN-A - SCAN-B = +1 mm", "uncertainty_mm": 0.5, "ocr_confidence": 0.41, "photo": {"page": 5, "bbox": [122, 44, 458, 86]}, "effective_at": 12},
+    {"kind": "slip", "slip_id": "SLIP-CS-1", "raw_text": "SCAN-C - GAUGE-S = +0.5 mm", "uncertainty_mm": 0.5, "photo": {"page": 6, "bbox": [121, 41, 461, 89]}, "effective_at": 12},
+    {"kind": "batch", "batch_id": "BATCH-A-1", "device_id": "SCAN-A", "start_at": 100, "end_at": 200, "pages": 320},
+    {"kind": "batch", "batch_id": "BATCH-A-2", "device_id": "SCAN-A", "start_at": 200, "end_at": 300, "pages": 280},
+    {"kind": "batch", "batch_id": "BATCH-B-1", "device_id": "SCAN-B", "start_at": 150, "end_at": 250, "pages": 410},
+    {"kind": "batch", "batch_id": "BATCH-B-2", "device_id": "SCAN-B", "start_at": 650, "end_at": 700, "pages": 190},
+    {"kind": "batch", "batch_id": "BATCH-C-1", "device_id": "SCAN-C", "start_at": 120, "end_at": 220, "pages": 150},
+    {"kind": "maintenance", "order_id": "MO-0", "device_id": "SCAN-B", "action": "clean-glass", "effective_at": 200},
+    {"kind": "revocation", "revocation_id": "REV-MO-0", "order_id": "MO-0", "effective_at": 585}
+  ],
+  "route_gauge_verify": [
+    {"kind": "certificate", "cert_id": "CERT-R-1", "gauge_id": "GAUGE-R", "offset_mm": 1, "uncertainty_mm": 0.2, "authority": "计量院", "effective_at": 600},
+    {"kind": "correction", "correction_id": "COR-AB-1", "slip_id": "SLIP-AB-1", "field": "value_mm", "corrected_mm": 4, "evidence": "photo-review", "photo": {"page": 5, "bbox": [122, 44, 458, 86]}, "effective_at": 601},
+    {"kind": "slip", "slip_id": "SLIP-AR-2", "raw_text": "SCAN-A - GAUGE-R = +2 mm", "uncertainty_mm": 0.5, "photo": {"page": 7, "bbox": [119, 43, 459, 87]}, "effective_at": 602},
+    {"kind": "slip", "slip_id": "SLIP-BR-2", "raw_text": "SCAN-B - GAUGE-R = -0.2 cm", "uncertainty_mm": 0.5, "photo": {"page": 8, "bbox": [117, 39, 463, 91]}, "effective_at": 603}
+  ],
+  "route_head_replace": [
+    {"kind": "maintenance", "order_id": "MO-1", "device_id": "SCAN-B", "action": "replace-head", "effective_at": 610},
+    {"kind": "certificate", "cert_id": "CERT-R-2", "gauge_id": "GAUGE-R", "offset_mm": 0, "uncertainty_mm": 0.2, "authority": "计量院", "effective_at": 620},
+    {"kind": "slip", "slip_id": "SLIP-AR-3", "raw_text": "SCAN-A - GAUGE-R = +2 mm", "uncertainty_mm": 0.5, "photo": {"page": 9, "bbox": [118, 40, 460, 88]}, "effective_at": 621},
+    {"kind": "slip", "slip_id": "SLIP-BR-3", "raw_text": "SCAN-B - GAUGE-R = 0 mm", "uncertainty_mm": 0.5, "photo": {"page": 10, "bbox": [120, 42, 462, 90]}, "effective_at": 622},
+    {"kind": "finding", "finding_id": "FIND-B-1", "device_id": "SCAN-B", "invalidates": ["SLIP-BR-1", "SLIP-AB-1"], "cause": "扫描头故障", "repaired_by": "MO-1", "approved_by": "设备主管", "effective_at": 623}
+  ]
+}
